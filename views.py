@@ -1,11 +1,11 @@
-from flask import render_template, session, abort
+from flask import render_template, session, abort, jsonify
 import pymysql
 
 from flask import request
 
 
 def index():
-    return 'Index Page'
+    return render_template('index.html')
 
 
 def hello(name=None):
@@ -18,10 +18,16 @@ def user():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM USER WHERE USER_NAME = '" + session.get('username') + "'")
-    info = "get info error"
+    info = jsonify(status="error")
     for i in cur:
         if i:
-            info = i
+            _, email, _, username, mobile, student_id, _, sex = i
+            info = jsonify(status="success",
+                           email=email,
+                           username=username,
+                           mobile=str(mobile),
+                           student_id=str(student_id),
+                           sex=sex)
             break
     cur.close()
     conn.close()
@@ -38,7 +44,7 @@ def get_db():
 
 
 def login():
-    error = 'Invalid username or password'
+    status = 'Invalid username or password'
     if request.method == 'POST':
         conn = get_db()
         cur = conn.cursor()
@@ -48,14 +54,14 @@ def login():
             if i:
                 session['logged_in'] = True
                 session['username'] = request.form['username']
-                error = 'Success'
+                status = 'success'
             else:
-                error = 'Invalid username or password' + request.form['username'] + ' ' + request.form['password']
+                status = 'error' + request.form['username'] + ' ' + request.form['password']
         cur.close()
         conn.close()
-    return error
+    return jsonify(status=status)
 
 
 def logout():
     session.pop('logged_in', None)
-    return 'Logout success'
+    return jsonify(status="success")
