@@ -17,7 +17,7 @@ def user():
         abort(401)
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USER WHERE USER_NAME = '%s'", (session.get('username'),))
+    cur.execute("SELECT * FROM USER WHERE USER_NAME = '" + session.get('username') + "'")
     info = jsonify(status="error")
     for i in cur:
         if i:
@@ -41,6 +41,31 @@ def get_db():
                            passwd='19961027',
                            db='share_charge',
                            charset='UTF8')
+
+
+def register():
+    status = 'no input'
+    if request.method == 'POST':
+        conn = get_db()
+        cur = conn.cursor()
+        # todo 防止 SQL 注入
+        print(request.form)
+        cur.execute(
+            "insert into user(email,password,user_name,phone,school_card_id,sex) values (%s,%s,%s,%s,%s,%s);",
+            (request.form['email'], request.form['password'], request.form['user_name'],
+             request.form['phone'], request.form['school_card_id'], request.form['sex']))
+        conn.commit()
+        for i in cur:
+            if i:
+                print(i)
+                session['logged_in'] = True
+                session['username'] = request.form['user_name']
+                status = 'success'
+            else:
+                status = 'error'
+        cur.close()
+        conn.close()
+    return jsonify(status=status)
 
 
 def login():
