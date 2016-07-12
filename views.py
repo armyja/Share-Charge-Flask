@@ -18,7 +18,7 @@ def user():
         abort(401)
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USER WHERE USER_NAME = '" + session.get('username') + "'")
+    cur.execute("SELECT * FROM user WHERE USER_NAME = '" + session.get('username') + "'")
     info = jsonify(status="error")
     for i in cur:
         if i:
@@ -75,7 +75,7 @@ def login():
         conn = get_db()
         cur = conn.cursor()
         # todo 防止 SQL 注入
-        cur.execute("SELECT * FROM USER WHERE USER_NAME = '" + request.form['username'].strip() + "'" +
+        cur.execute("SELECT * FROM user WHERE USER_NAME = '" + request.form['username'].strip() + "'" +
                     "AND PASSWORD = '" + request.form['password'] + "'")
         for i in cur:
             if i:
