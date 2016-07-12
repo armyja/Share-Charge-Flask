@@ -56,14 +56,9 @@ def register():
             (request.form['email'], request.form['password'], request.form['user_name'],
              request.form['phone'], request.form['school_card_id'], request.form['sex']))
         conn.commit()
-        for i in cur:
-            if i:
-                print(i)
-                session['logged_in'] = True
-                session['username'] = request.form['user_name']
-                status = 'success'
-            else:
-                status = 'error'
+        session['logged_in'] = True
+        session['username'] = request.form['user_name']
+        status = 'success'
         cur.close()
         conn.close()
     return jsonify(status=status)
